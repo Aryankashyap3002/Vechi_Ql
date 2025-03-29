@@ -6,7 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { SignedOut } from "@clerk/nextjs";
-import  HomeSearch  from "@/components/home-search";
+import  { HomeSearch }  from "@/components/home-search";
 import { Button } from "@/components/ui/button";
 import { CarCard } from "@/components/car-card";
 import Link from "next/link";
