@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState } from 'react'
+import { toast } from 'sonner';
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -12,10 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDropzone } from 'react-dropzone';
-import { toast } from 'sonner';
 import { Loader2, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import useFetch from '@/hooks/use-fetch';
+import { addCar } from '@/actions/cars';
 
 const fuelTypes = ["Petrol", "Diesel", "Electric", "Hybrid", "Plug-in Hybrid"];
 const transmissions = ["Automatic", "Manual", "Semi-Automatic"];
@@ -89,36 +91,63 @@ const AddCarForm = () => {
      },
    });
 
+   const {
+        data: addCarResult,
+        loading: addCarLoading,
+        fn: addcarFn
+   } = useFetch(addCar);
+
+   useEffect(() => {
+    if (addCarResult?.success) {
+        toast.success("Car added successfully");
+        router.push("/admin/cars");
+    }
+   }, [addCarResult, addCarLoading]);
+
    const onSubmit = async (data) => {
         if(uploadedImages.length === 0) {
             setImageError("Please upload at least one image");
             return;
         }
+
+        const carData = {
+            ...data,
+            year: parseInt(data.year),
+            price: parseFloat(data.price),
+            mileage: parseInt(data.mileage),
+            seats: data.seats ? parseInt(data.seats) : null,
+          };
+          
+          await addcarFn({
+            carData,
+            images: uploadedImages,
+          });
+          
         
-        setIsSubmitting(true);
+        // setIsSubmitting(true);
         
-        try {
-            // Prepare data for submission
-            const carData = {
-                ...data,
-                images: uploadedImages
-            };
+        // try {
+        //     // Prepare data for submission
+        //     const carData = {
+        //         ...data,
+        //         images: uploadedImages
+        //     };
             
-            // Here you would typically send data to your API
-            console.log("Submitting car data:", carData);
+        //     // Here you would typically send data to your API
+        //     console.log("Submitting car data:", carData);
             
-            // Simulate successful submission
-            toast.success("Car added successfully!");
+        //     // Simulate successful submission
+        //     toast.success("Car added successfully!");
             
-            // Reset form
-            reset();
-            setUploadedImages([]);
-        } catch (error) {
-            console.error("Error submitting form:", error);
-            toast.error("Failed to add car. Please try again.");
-        } finally {
-            setIsSubmitting(false);
-        }
+        //     // Reset form
+        //     reset();
+        //     setUploadedImages([]);
+        // } catch (error) {
+        //     console.error("Error submitting form:", error);
+        //     toast.error("Failed to add car. Please try again.");
+        // } finally {
+        //     setIsSubmitting(false);
+        // }
    };
 
    // Handle image upload with react-dropzone
@@ -485,9 +514,9 @@ const AddCarForm = () => {
                         <Button 
                             type="submit" 
                             className="w-full md:w-auto mt-6"
-                            disabled={isSubmitting}
+                            disabled={addCarLoading}
                         >
-                            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Add Car"}
+                            {addCarLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Add Car"}
                         </Button>
                          {/* <Button 
                             type="submit" 
