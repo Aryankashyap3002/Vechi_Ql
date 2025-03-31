@@ -74,7 +74,7 @@ export const CarsList = () => {
       toast.success("Car updated successfully");
       fetchCars(search);
     }
-  }, [deleteResult, updateResult]); 
+  }, [deleteResult, updateResult ]); 
 
 
   // Get status badge color
