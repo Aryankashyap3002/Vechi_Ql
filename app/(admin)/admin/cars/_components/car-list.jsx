@@ -22,7 +22,7 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparato
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import useFetch from "@/hooks/use-fetch";
 import { deleteCar, getCars, updateCarStatus } from "@/actions/cars";
-import { formatCurrency } from "@/lib/helper";
+import { formatCurrency } from "@/lib/helpers";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
