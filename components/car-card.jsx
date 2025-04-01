@@ -9,15 +9,53 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 // import { useAuth } from "@clerk/nextjs"; 
 import { useRouter } from "next/navigation";
+import useFetch from "@/hooks/use-fetch";
+import { toggleSavedCar } from "@/actions/car-listing";
+import { useAuth } from "@clerk/nextjs";
 
 export const CarCard = ({ car }) => {
+  const { isSignedIn } = useAuth();
   const router = useRouter();
   const [isSaved, setIsSaved] = useState(car.wishlisted);
 
+  // Use the useFetch hook
+  const {
+    loading: isToggling,
+    fn: toggleSavedCarFn,
+    data: toggleResult,
+    error: toggleError,
+  } = useFetch(toggleSavedCar);
+
+  // Handle toggle result with useEffect
+  useEffect(() => {
+    if (toggleResult?.success && toggleResult.saved !== isSaved) {
+      setIsSaved(toggleResult.saved);
+      toast.success(toggleResult.message);
+    }
+  }, [toggleResult, isSaved]);
+
+  // Handle errors with useEffect
+  useEffect(() => {
+    if (toggleError) {
+      toast.error("Failed to update favorites");
+    }
+  }, [toggleError]);
 
   // Handle save/unsave car
   const handleToggleSave = async (e) => {
-    
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isSignedIn) {
+      toast.error("Please sign in to save cars");
+      router.push("/sign-in");
+      return;
+    }
+
+    if (isToggling) return;
+
+    // Call the toggleSavedCar function using our useFetch hook
+    await toggleSavedCarFn(car.id);
   };
 
   return (
@@ -45,7 +83,11 @@ export const CarCard = ({ car }) => {
           }`}
           onClick={handleToggleSave}
         >
-             <Heart className={isSaved ? "fill-current" : ""} size={20} />
+          {isToggling ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Heart className={isSaved ? "fill-current" : ""} size={20} />
+          )}
         </Button>
       </div>
 
